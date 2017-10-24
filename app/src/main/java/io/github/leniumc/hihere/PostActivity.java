@@ -40,32 +40,6 @@ public class PostActivity extends AppCompatActivity {
             gradeTextView.setText(postData.getUserGrade());
             descriptionTextView.setText(postData.getPostDescription());
         }
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.top_menu_post, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId = item.getItemId();
-        if (itemId == R.id.accept) {
-            new AlertDialog.Builder(this)
-                    .setTitle("接受")
-                    .setMessage("是否确定接受该用户的请求？")
-                    .setIcon(R.drawable.ic_check_white_24dp)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            // TODO: accept
-                        }})
-                    .setNegativeButton(android.R.string.no, null).show();
-        }
-        return true;
     }
 
     public void exitActivity(View view) {

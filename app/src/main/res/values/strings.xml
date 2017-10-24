@@ -10,8 +10,8 @@
     <string name="subject_button">筛选科目</string>
 
     <string-array name="me_options_1">
-        <item>我的分享</item>
-        <item>历史记录</item>
+        <item>被接受</item>
+        <item>已接受</item>
     </string-array>
     <string-array name="me_options_2">
         <item>反馈</item>
@@ -27,6 +27,22 @@
     <string name="publish">发布内容</string>
     <string name="send">发送</string>
 
+    <string name="prompt_student_id">学号</string>
+    <string name="prompt_user_description">用户简介（选填）</string>
+    <string name="add_attachment">添加附件</string>
+
+    <string name="prompt_username">姓名</string>
+    <string name="prompt_password">密码</string>
+    <string name="action_sign_in">登录</string>
+    <string name="action_register">注册</string>
+    <string name="prompt_grade">年级</string>
+    <string name="select_avatar">选择头像</string>
+    <string name="avatar_unselected">未选择头像</string>
+
     <string name="prompt_title">标题</string>
     <string name="prompt_description">简介/内容</string>
+
+    <string name="prompt_phone">手机号</string>
+    <string name="prompt_qq">QQ号（选填）</string>
+    <string name="prompt_wechat">微信号（选填）</string>
 </resources>

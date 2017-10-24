@@ -1,6 +1,8 @@
 package io.github.leniumc.hihere;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -139,6 +141,18 @@ public class HomeFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.top_menu_home, menu);
+    }
+
+    public void acceptRequest(View view) {
+        new AlertDialog.Builder(getContext())
+                .setTitle("接受")
+                .setMessage("是否确定接受该用户的请求？")
+                .setIcon(R.drawable.ic_check_white_24dp)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // TODO: accept
+                    }})
+                .setNegativeButton(android.R.string.no, null).show();
     }
 
     public void clearRecyclerView() {
