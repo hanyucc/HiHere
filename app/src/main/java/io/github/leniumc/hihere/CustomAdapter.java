@@ -47,13 +47,23 @@ class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
         holder.gradeTextView.setText(dataList.get(position).getUserGrade());
         holder.descriptionTextView.setText(dataList.get(position).getPostDescription());
 
+        holder.postCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, PostActivity.class);
+                PostData postData = dataList.get(holder.getAdapterPosition());
+                intent.putExtra("everything", postData);
+                context.startActivity(intent);
+            }
+        });
+
         holder.acceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 new AlertDialog.Builder(context)
                         .setTitle("接受")
                         .setMessage("是否确定接受该用户的请求？")
-                        .setIcon(R.drawable.ic_check_white_24dp)
+                        .setIcon(R.drawable.ic_check_black_24dp)
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 // TODO: send information, remove post, and add to database

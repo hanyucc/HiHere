@@ -22,18 +22,9 @@ import okhttp3.Response;
 
 public class SignInActivity extends AppCompatActivity {
 
-    private static final String SERVER_IP = "http://192.168.0.105/hihere";
+    private static final String SERVER_IP = "http://192.168.0.105/HiHere";
 
     private EditText studentIdEditText, passwordEditText;
-
-    private boolean isNumeric(String str){
-        Pattern pattern = Pattern.compile("[0-9]*$");
-        Matcher isNum = pattern.matcher(str);
-        if( !isNum.matches() ){
-            return false;
-        }
-        return true;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,10 +59,6 @@ public class SignInActivity extends AppCompatActivity {
 
             try (Response response = client.newCall(request).execute()) {
                 if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-                if (String.response.body().string())
-                if ()
-                JSONObject object = new JSONObject(response.body().string());
-                // TODO: get stuff from JSON
             } catch (Exception e) {
                 e.printStackTrace();
             }

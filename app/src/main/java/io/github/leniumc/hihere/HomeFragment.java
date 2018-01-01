@@ -37,7 +37,6 @@ public class HomeFragment extends Fragment {
 
     private List<PostData> dataList;
     private int loadThreshold = 3;
-    private int[] favPosts, upvotePosts;
 
     // TODO: Rename and change types of parameters
 
@@ -126,7 +125,7 @@ public class HomeFragment extends Fragment {
     private void loadData(int id) {
         // TODO: get 10 posts
         for (int i = id; i < id + 10; i++) {
-            String repeated = new String(new char[100]).replace("\0", String.valueOf(i));
+            String repeated = new String(new char[500]).replace("\0", String.valueOf(i));
             String[] default_url = new String[1];
             default_url[0] = "nothing";
             PostData data = new PostData(
@@ -147,7 +146,7 @@ public class HomeFragment extends Fragment {
         new AlertDialog.Builder(getContext())
                 .setTitle("接受")
                 .setMessage("是否确定接受该用户的请求？")
-                .setIcon(R.drawable.ic_check_white_24dp)
+                .setIcon(R.drawable.ic_check_black_24dp)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         // TODO: accept

@@ -1,10 +1,12 @@
 package io.github.leniumc.hihere;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -13,44 +15,44 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import net.gotev.uploadservice.MultipartUploadRequest;
+import net.gotev.uploadservice.ServerResponse;
+import net.gotev.uploadservice.UploadInfo;
 import net.gotev.uploadservice.UploadNotificationConfig;
+import net.gotev.uploadservice.UploadStatusDelegate;
 
 import java.io.File;
-import java.io.IOException;
-
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private static final String SERVER_IP = "http://192.168.0.105/";
+    // private static final String SERVER_IP = "http://192.168.0.105/HiHere/";
+    private static final String SERVER_IP = "https://leniumc.site/BackEnd/HiHere/";
 
-    private static final boolean AVATAR_SELECTED = false;
     private static final int READ_REQUEST_CODE = 42;
-    private Button avatarButton;
     private String avatarPath = "";
     private TextView avatarFilename;
     private EditText studentIdEditText, usernameEditText, passwordEditText,
             gradeEditText, descriptionEditText, qqEditText, wechatEditText, phoneEditText;
 
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        avatarButton = findViewById(R.id.avatar_button);
         avatarFilename = findViewById(R.id.avatar_file_name);
         studentIdEditText = findViewById(R.id.student_id);
         usernameEditText = findViewById(R.id.username);
@@ -63,6 +65,8 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void register(View view) {
+        verifyStoragePermissions(this);
+
         if (studentIdEditText.getText().toString().trim().length() == 0 ||
                 usernameEditText.getText().toString().trim().length() == 0 ||
                 passwordEditText.getText().toString().trim().length() == 0 ||
@@ -79,50 +83,78 @@ public class RegisterActivity extends AppCompatActivity {
                     descriptionEditText.getText().toString(),
                     qqEditText.getText().toString(),
                     wechatEditText.getText().toString(),
-                    phoneEditText.getText().toString());
+                    phoneEditText.getText().toString(),
+                    avatarPath);
         }
     }
 
-    public void makeRequest(String studentId, String username, String password, String grade,
-                            String description, String qq, String wechat, String phone) {
-        String[] args = {studentId, password, username, grade, description, qq, wechat, phone};
-        new PostRequestTask().execute(args);
-    }
+    public void makeRequest(String studentId, String username, String password,
+                            String grade, String description, String qq, String wechat,
+                            String phone, String filePath) {
+        try {
+            // starting from 3.1+, you can also use content:// URI string instead of absolute file
+            String uploadId =
+                    new MultipartUploadRequest(getApplicationContext(), SERVER_IP + "create_user.php")
+                            .setUtf8Charset()
+                            .addParameter("user_id", studentId)
+                            .addParameter("user_password", password)
+                            .addParameter("user_name", username)
+                            .addParameter("user_grade", grade)
+                            .addParameter("user_description", description)
+                            .addParameter("user_qq", qq)
+                            .addParameter("user_wechat", wechat)
+                            .addParameter("user_phone", phone)
+                            .setNotificationConfig(new UploadNotificationConfig()
+                                    .setTitleForAllStatuses(new File(filePath).getName()))
+                            .setDelegate(new UploadStatusDelegate() {
+                                @Override
+                                public void onProgress(Context context, UploadInfo uploadInfo) {
 
-    private class PostRequestTask extends AsyncTask<String, Void, Integer> {
+                                }
 
-        @Override
-        protected Integer doInBackground(String... params) {
-            final OkHttpClient client = new OkHttpClient();
-            RequestBody formBody = new FormBody.Builder()
-                    .add("user_id", params[0])
-                    .add("user_password", params[1])
-                    .add("user_name", params[2])
-                    .add("user_grade", params[3])
-                    .add("user_description", params[4])
-                    .add("user_qq", params[5])
-                    .add("user_wechat", params[6])
-                    .add("user_phone", params[7])
-                    .build();
-            Request request = new Request.Builder()
-                    .url(SERVER_IP + "create_user.php")
-                    .post(formBody)
-                    .build();
+                                @Override
+                                public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
+                                    exception.printStackTrace();
+//                                    int integer = Integer.parseInt(serverResponse.getBodyAsString());
+//                                    if (integer == -1 || integer == 1) {
+//                                        Toast.makeText(getApplicationContext(), "连接错误", Toast.LENGTH_SHORT).show();
+//                                    } else if (integer == 2) {
+//                                        Toast.makeText(getApplicationContext(), "用户ID已注册", Toast.LENGTH_SHORT).show();
+//                                    } else if (integer == 4) {
+//                                        Toast.makeText(getApplicationContext(), "姓名不合法", Toast.LENGTH_SHORT).show();
+//                                    } else if (integer == 6) {
+//                                        Toast.makeText(getApplicationContext(), "简介过长", Toast.LENGTH_SHORT).show();
+//                                    } else if (integer == 7) {
+//                                        Toast.makeText(getApplicationContext(), "图片文件过大", Toast.LENGTH_SHORT).show();
+//                                    }
+                                }
 
-            try (Response response = client.newCall(request).execute()) {
-                if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+                                @Override
+                                public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
+//                                    int integer = Integer.parseInt(serverResponse.getBodyAsString());
+//                                    if (integer == -1 || integer == 1) {
+//                                        Toast.makeText(getApplicationContext(), "连接错误", Toast.LENGTH_SHORT).show();
+//                                    } else if (integer == 2) {
+//                                        Toast.makeText(getApplicationContext(), "用户ID已注册", Toast.LENGTH_SHORT).show();
+//                                    } else if (integer == 4) {
+//                                        Toast.makeText(getApplicationContext(), "姓名不合法", Toast.LENGTH_SHORT).show();
+//                                    } else if (integer == 6) {
+//                                        Toast.makeText(getApplicationContext(), "简介过长", Toast.LENGTH_SHORT).show();
+//                                    } else if (integer == 7) {
+//                                        Toast.makeText(getApplicationContext(), "图片文件过大", Toast.LENGTH_SHORT).show();
+//                                    }
+                                }
 
-                Log.d("tag", response.body().string());
-                return Integer.parseInt(response.body().string());
-            } catch (Exception e) {
-                e.printStackTrace();
-                return 0;
-            }
-        }
+                                @Override
+                                public void onCancelled(Context context, UploadInfo uploadInfo) {
 
-        @Override
-        protected void onPostExecute(Integer integer) {
-            uploadMultipart(getApplicationContext(), avatarPath, integer);
+                                }
+                            })
+                            .addFileToUpload(filePath, "uploaded_file")
+                            .setMaxRetries(2)
+                            .startUpload();
+        } catch (Exception exc) {
+            Log.e("AndroidUploadService", exc.getMessage(), exc);
         }
     }
 
@@ -130,8 +162,21 @@ public class RegisterActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
-        startActivityForResult(Intent.createChooser(intent, "Select File"), READ_REQUEST_CODE);
+        startActivityForResult(Intent.createChooser(intent, "选择头像"), READ_REQUEST_CODE);
     }
+
+    public static void verifyStoragePermissions(Activity activity) {
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent resultData) {
@@ -294,23 +339,5 @@ public class RegisterActivity extends AppCompatActivity {
      */
     public static boolean isGooglePhotosUri(Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
-    }
-
-    public void uploadMultipart(final Context context, final String filePath, final int userId) {
-        try {
-            // starting from 3.1+, you can also use content:// URI string instead of absolute file
-            String uploadId =
-                    new MultipartUploadRequest(context, SERVER_IP + "upload_avatar.php")
-                            .setUtf8Charset()
-                            .setNotificationConfig(new UploadNotificationConfig()
-                                    .setTitleForAllStatuses(new File(filePath).getName()))
-                            // starting from 3.1+, you can also use content:// URI string instead of absolute file
-                            .addFileToUpload(filePath, "uploaded_file")
-                            .setMaxRetries(2)
-                            .addParameter("user_id", String.valueOf(userId))
-                            .startUpload();
-        } catch (Exception exc) {
-            Log.e("AndroidUploadService", exc.getMessage(), exc);
-        }
     }
 }

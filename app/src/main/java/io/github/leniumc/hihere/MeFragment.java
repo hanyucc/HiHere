@@ -54,7 +54,7 @@ public class MeFragment extends Fragment {
 
         PicassoLoader imageLoader = new PicassoLoader();
         // TODO: Get image Url or image from database.
-        imageLoader.loadImage(avatarView, "http://static.zerochan.net/Kagamine.Len.full.2066605.jpg", "Neil");
+        imageLoader.loadImage(avatarView, "http://233static.zerochan.net/Kagamine.Len.full.2066605.jpg", "Neil");
 
         return rootView;
     }
